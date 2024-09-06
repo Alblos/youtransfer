@@ -1,5 +1,4 @@
-FROM go:latest
-LABEL authors="albertbru"
+FROM golang:1.23.1-alpine3.20
 
 WORKDIR /app
 
