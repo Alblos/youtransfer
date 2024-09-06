@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/gorilla/mux"
+	"github.com/rs/cors"
 	"log"
 	"net/http"
 )
@@ -13,9 +14,22 @@ func main() {
 
 	apiv1.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
 		_, _ = w.Write([]byte("ok"))
-	}).Methods("GET")
+	}).Methods(http.MethodGet)
 
-	// Print the routes
+	printRoutes(r) // Print the routes
+
+	c := cors.Default().Handler(r) // CORS
+
+	// Start the server and print server started
+	err := http.ListenAndServe(":8080", c)
+	if err != nil {
+		log.Panicf("Error starting server: %v", err)
+	} else {
+		println("Server started")
+	}
+}
+
+func printRoutes(r *mux.Router) {
 	err := r.Walk(func(route *mux.Route, router *mux.Router, ancestors []*mux.Route) error {
 		t, _ := route.GetPathTemplate()
 		m, _ := route.GetMethods()
@@ -25,13 +39,5 @@ func main() {
 	if err != nil {
 		log.Panicf("Error walking routes: %v", err)
 		return
-	}
-
-	// Start the server and print server started
-	err = http.ListenAndServe(":8080", r)
-	if err != nil {
-		println("Error starting server")
-	} else {
-		println("Server started")
 	}
 }
